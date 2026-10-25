@@ -1,26 +1,46 @@
-# CSCE 3550 Project 1 - JWKS Server
+# CSCE 3550 Project 2 - JWKS Server
 
-## Overview
+## Description
 
-This project implements a basic JWKS server in Go. The server generates RSA key pairs, assigns each key a unique key ID (`kid`) and expiration time, publishes valid public keys through a JWKS endpoint, and creates signed JWTs through an authentication endpoint.
+This project extends the JWKS server from Project 1 by storing RSA private keys in a SQLite database.
 
-The project uses Go's standard library for the HTTP server, RSA key generation, SHA-256 hashing, JSON encoding, and Base64URL encoding.
+The server creates the database automatically when it starts. Each key has a database-generated key ID (`kid`) and an expiration timestamp. Private RSA keys are serialized in PKCS#1 PEM format before being stored in the database.
+
+## Database
+
+The SQLite database file is:
+
+`totally_not_my_privateKeys.db`
+
+The required table is:
+
+```sql
+CREATE TABLE IF NOT EXISTS keys(
+    kid INTEGER PRIMARY KEY AUTOINCREMENT,
+    key BLOB NOT NULL,
+    exp INTEGER NOT NULL
+);
+```
+
+Database values are supplied using query parameters rather than being concatenated into SQL statements.
 
 ## Endpoints
 
 ### GET `/.well-known/jwks.json`
 
-Returns the public RSA keys that have not expired in JWKS format.
+Returns all non-expired public RSA keys in JWKS format.
 
 Expired keys are not included.
 
 ### POST `/auth`
 
-Returns a signed JWT using the current valid RSA private key.
+Returns an RS256-signed JWT using a valid private key read from the SQLite database.
 
 ### POST `/auth?expired=true`
 
-Returns a JWT signed using the expired RSA key. The JWT also contains an expiration time in the past.
+Returns a JWT signed with an expired private key from the database.
+
+Authentication is mocked for this assignment, so the supplied Basic Auth or JSON username and password do not need to be validated.
 
 ## Running the Server
 
@@ -28,37 +48,35 @@ Returns a JWT signed using the expired RSA key. The JWT also contains an expirat
 go run .
 ```
 
-The server runs on:
-
-```text
-http://localhost:8080
-```
+The server listens on port `8080`.
 
 ## Testing
 
-Run the unit tests with:
+Run the test suite:
 
 ```bash
 go test
 ```
 
-Run the tests with coverage information using:
+Run the tests with coverage:
 
 ```bash
 go test -cover
 ```
 
-Run static analysis using:
+Run Go static analysis:
 
 ```bash
 go vet ./...
 ```
 
-The project can also be linted using:
+Run the linter:
 
 ```bash
-golangci-lint run
+golangci-lint run --no-config
 ```
+
+The test suite covers database creation and persistence, RSA key serialization, JWT signing, valid and expired keys, JWKS responses, HTTP methods, authentication request formats, and error handling.
 
 ## Language
 
