@@ -1,0 +1,22 @@
+# SQLite database containing generated private keys
+totally_not_my_privateKeys.db
+totally_not_my_privateKeys.db-shm
+totally_not_my_privateKeys.db-wal
+
+# Coverage output
+coverage.out
+coverage.html
+
+# Compiled Go binary
+jwks-server
+
+# macOS
+.DS_Store
+
+# Editor files
+.vscode/
+.idea/
+
+# Temporary files
+*.log
+*.tmp
